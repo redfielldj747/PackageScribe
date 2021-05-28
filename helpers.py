@@ -5,9 +5,6 @@ import re
 def getValidNumber(min, max):
     isInvalid = True
 
-    # print("Please enter an integer between " + str(min)
-    #       + "and" + str(max))
-
     while isInvalid:
         try:
             value = input()
