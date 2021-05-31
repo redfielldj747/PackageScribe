@@ -67,32 +67,62 @@ def main():
 
     data2 = {"Package Name:":[], "Version:":[]}
 
+    if command_choice == 1:
+        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("apt list --installed | awk -F/ '{print $1}'")
+        apt_list_PackageName = []
+        apt_list_PackageName_stripped = []
+        apt_list_PackageName = ssh_stdout.readlines()
+        for i in apt_list_PackageName:
+            if i != "Listing...\n":
+                i = i.strip('\n')
+                apt_list_PackageName_stripped.append(i)
+        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("apt list --installed | awk -F/ '{print $2}'")
+        apt_list_Version = []
+        apt_list_Version = ssh_stdout.readlines()
 
-    for i in range(len(commands)):
-        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(commands[i])
+        for j in apt_list_Version:
+            j = j.strip('\n')
+            data2["Version:"].append(j)
 
-        data = ssh_stdout.readlines()
+        #writer = csv.DictWriter(apt_list, data2.keys())
+        writer = csv.writer(apt_list, data2.keys())
 
-        if commands[i] == "apt list --installed | awk -F/ '{print $1}":
-            for i in data:
-                data2["Package Name:"].append(i)
-        if commands[i] == "apt list --installed | awk -F/ '{print $2}'":
-            for k in data:
-                if k != '\n':
-                    data2["Version:"].append(k)
-        fieldnames = data2.keys()
+        writer.writerows(zip(["Package Name:"], ["Version:"]))
 
-        if command_choice == 1:
-            writer = csv.DictWriter(apt_list, fieldnames=fieldnames)
+        writer.writerows(zip(apt_list_PackageName_stripped, apt_list_Version))
 
-        writer.writeheader()
 
-        for l in range(len(data2["Package Name:"])):
-            writer.writerow(data2["Package Name:"][l])
+        #writer.writerows(zip(data2["Package Name":].values(), data2["Version:":].values()))
 
-        writer.writerow(data2)
-        # for j in data:
-        #     writer.writerow([j])
+
+
+
+    # for i in range(len(commands)):
+    #     ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(commands[i])
+    #
+    #     data = ssh_stdout.readlines()
+    #
+    #     if commands[i] == "apt list --installed | awk -F/ '{print $1}":
+    #         for i in data:
+    #             data2["Package Name:"].append(i)
+    #     if commands[i] == "apt list --installed | awk -F/ '{print $2}'":
+    #         for k in data:
+    #             if k != '\n':
+    #                 data2["Version:"].append(k)
+    #     fieldnames = data2.keys()
+    #
+    #     if command_choice == 1:
+    #         writer = csv.DictWriter(apt_list, fieldnames=fieldnames)
+    #
+    #     writer.writeheader()
+    #
+    #     for key,value in data2.items():
+    #         writer.writerow([key, value])
+    #     #     writer.writerow(data2["Package Name:"][l])
+    #
+    #     #writer.writerow(data2)
+    #     # for j in data:
+    #     #     writer.writerow([j])
 
 if __name__ == "__main__":
     main()
